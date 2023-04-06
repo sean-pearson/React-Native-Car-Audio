@@ -1,0 +1,77 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext {
+        buildToolsVersion = "33.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        // Dependency versions.
+        androidx_app_compat_version = '1.2.0'
+        androidx_car_version = '1.0.0-alpha7'
+        androidx_core_ktx_version = '1.3.1'
+        androidx_media_version = '1.0.1'
+        androidx_preference_version = '1.1.1'
+        androidx_test_runner_version = '1.3.0'
+        arch_lifecycle_version = '2.2.0'
+        constraint_layout_version = '2.0.1'
+        espresso_version = '3.3.0'
+        exoplayer_version = '2.16.0'
+        fragment_version = '1.2.5'
+        glide_version = '4.11.0'
+        gms_strict_version_matcher_version = '1.0.3'
+        gradle_version = '3.1.4'
+        gson_version = '2.8.5'
+        junit_version = '4.13'
+        kotlin_version = '1.6.20'
+        kotlin_coroutines_version = '1.1.0'
+        multidex_version = '1.0.3'
+        play_services_auth_version = '18.1.0'
+        recycler_view_version = '1.1.0'
+        test_runner_version = '1.1.0'
+        robolectric_version = '4.2'
+
+        if (System.properties['os.arch'] == "aarch64") {
+            // For M1 Users we need to use the NDK 24 which added support for aarch64
+            ndkVersion = "24.0.8215888"
+        } else {
+            // Otherwise we default to the side-by-side NDK version from AGP.
+            ndkVersion = "21.4.7075529"
+        }
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.2.1")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("de.undercouch:gradle-download-task:5.0.1")
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.google.android.gms:strict-version-matcher-plugin:$gms_strict_version_matcher_version"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url("$rootDir/../node_modules/react-native/android")
+        }
+        maven {
+            // Android JSC is installed from npm
+            url("$rootDir/../node_modules/jsc-android/dist")
+        }
+        mavenCentral {
+            // We don't want to fetch react-native from Maven Central as there are
+            // older versions over there.
+            content {
+                excludeGroup "com.facebook.react"
+            }
+        }
+        google()
+        maven { url 'https://www.jitpack.io' }
+    }
+}
