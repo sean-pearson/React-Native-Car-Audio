@@ -99,7 +99,7 @@ open class MusicService : MediaBrowserServiceCompat() {
     private var isForegroundService = false
 
     private val remoteJsonSource: Uri =
-        Uri.parse("https://storage.googleapis.com/uamp/catalog.json")
+        Uri.parse("http://localhost:3000/catalog")
 
     private val uAmpAudioAttributes = AudioAttributes.Builder()
         .setContentType(C.CONTENT_TYPE_MUSIC)
@@ -114,6 +114,7 @@ open class MusicService : MediaBrowserServiceCompat() {
      */
     private val exoPlayer: ExoPlayer by lazy {
         SimpleExoPlayer.Builder(this).build().apply {
+
             setAudioAttributes(uAmpAudioAttributes, true)
             setHandleAudioBecomingNoisy(true)
             addListener(playerListener)
@@ -606,6 +607,7 @@ open class MusicService : MediaBrowserServiceCompat() {
      * Listen for events from ExoPlayer.
      */
     private inner class PlayerEventListener : Player.Listener {
+
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when (playbackState) {

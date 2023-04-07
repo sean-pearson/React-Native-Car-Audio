@@ -53,7 +53,6 @@ import com.example.android.uamp.media.extensions.id
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
 class MusicServiceConnection(context: Context, serviceComponent: ComponentName) {
-    val x = serviceComponent
     val isConnected = MutableLiveData<Boolean>()
         .apply { postValue(false) }
     val networkFailure = MutableLiveData<Boolean>()

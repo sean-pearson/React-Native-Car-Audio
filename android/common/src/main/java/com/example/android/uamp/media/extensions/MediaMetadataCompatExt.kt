@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
+import android.webkit.MimeTypeMap
 import com.example.android.uamp.media.library.JsonSource
 import com.google.android.exoplayer2.MediaMetadata
 import com.google.android.exoplayer2.util.MimeTypes
@@ -278,10 +279,18 @@ fun MediaMetadataCompat.toMediaItemMetadata(): com.google.android.exoplayer2.Med
 }
 
 fun MediaMetadataCompat.toMediaItem(): com.google.android.exoplayer2.MediaItem {
+    val mediaUri = this.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)?.toUri()
+        ?: throw IllegalArgumentException("Missing media URI in MediaMetadataCompat")
+    val extension = MimeTypeMap.getFileExtensionFromUrl(mediaUri.toString())
+    val mimeType = if (extension=="m3u8") {
+        MimeTypes.APPLICATION_M3U8
+    } else {
+        MimeTypes.AUDIO_MPEG
+    }
     return with(com.google.android.exoplayer2.MediaItem.Builder()) {
         setMediaId(mediaUri.toString())
         setUri(mediaUri)
-        setMimeType(MimeTypes.AUDIO_MPEG)
+        setMimeType(mimeType)
         setMediaMetadata(toMediaItemMetadata())
     }.build()
 }

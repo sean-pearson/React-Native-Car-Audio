@@ -76,8 +76,12 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
     }
 
     override fun onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy()
-        musicServiceConnection.playbackState.removeObserver { /* observer */ }
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(object : Runnable {
+            override fun run() {
+                musicServiceConnection.playbackState.removeObserver { /* observer */ }
+            }
+        })
     }
     fun sendEvent(eventName: String, params: WritableMap) {
         val reactContext = reactApplicationContext
@@ -98,16 +102,16 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
 //    var playbackRes: Int
     @ReactMethod
     fun test(obj: ReadableMap, callback: Promise) = scope.launch {
-        val args = Bundle()
-        args.putString("url", "")
-        val x = musicServiceConnection.transportControls.sendCustomAction("TEST", args)
-        Log.d(TAG, x.toString())
-        val music = obj.getArray("music");
-        val idx0 = music!!.getMap(0)
-        val source = idx0.getString("source")
-        Log.d(TAG, source.toString())
-        val uri: Uri = Uri.parse(source.toString())
-
+//        val args = Bundle()
+//        args.putString("url", "")
+//        val x = musicServiceConnection.transportControls.sendCustomAction("TEST", args)
+//        Log.d(TAG, x.toString())
+//        val music = obj.getArray("music");
+//        val idx0 = music!!.getMap(0)
+//        val source = idx0.getString("source")
+//        Log.d(TAG, source.toString())
+//        val uri: Uri = Uri.parse(source.toString())
+//
 
         callback.resolve(null)
     }
