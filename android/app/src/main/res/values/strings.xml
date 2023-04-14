@@ -1,31 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2017 Google Inc. All rights reserved.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+
 <resources>
-    <string name="app_name">ReactNativeUAMP</string>
-
-    <string name="skip_back_10s">Skip back 10s</string>
-    <string name="skip_forward_10s">Skip forward 10s</string>
-    <string name="play">Play</string>
-    <string name="pause">Pause</string>
-
-    <string name="menu_music_queue">Queue</string>
-    <string name="album_art_alt">Album art</string>
-    <string name="duration_unknown">--:--</string>
-    <string name="duration_format">%d:%02d</string>
-
-    <string name="cast_context_error">Failed to get Cast context. Try updating Google Play Services and restart the app.</string>
+    <string name="app_name">Track Player</string>
+    <string name="current_playlist_name">Current playlist</string>
+    <string name="open_player_content_description">Click to view your play list</string>
+    <string name="added_media_item_format">Added %1$s to playlist</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="repeat">Repeat</string>
+    <string name="play_button">Play</string>
+    <string name="no_item_prompt">
+    "! No media in the play list !\nPlease try to add more from browser"
+  </string>
+    <string name="notification_content_title">Playback cannot be resumed</string>
+    <string name="notification_content_text">Press on the play button on the media notification if it
+    is still present, otherwise please open the app to start the playback and re-connect the session
+    to the controller</string>
+    <string name="notification_channel_name">Playback cannot be resumed</string>
 </resources>

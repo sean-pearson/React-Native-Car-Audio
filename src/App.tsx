@@ -31,31 +31,7 @@ function App() {
       <Text style={{color: 'white', textAlign: 'center'}}>
         {nowPlaying.artist}
       </Text>
-      <Button
-        title="Update"
-        color="#777"
-        onPress={() =>
-          TrackPlayer.test({
-            music: [
-              {
-                id: 'wake_up_01',
-                title: 'Intro - The Way Of Waking Up (feat. Alan Watts)',
-                album: 'Wake Up',
-                artist: 'The Kyoto Connection',
-                genre: 'Electronic',
-                source:
-                  'https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/01_-_Intro_-_The_Way_Of_Waking_Up_feat_Alan_Watts.mp3',
-                image:
-                  'https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg',
-                trackNumber: 1,
-                totalTrackCount: 13,
-                duration: 90,
-                site: 'http://freemusicarchive.org/music/The_Kyoto_Connection/Wake_Up_1957/',
-              },
-            ],
-          })
-        }
-      />
+      <Button title="Add" color="#777" onPress={() => TrackPlayer.add()} />
       <Button title="Pause" color="#777" onPress={() => TrackPlayer.pause()} />
       <Button title="Play" color="#777" onPress={() => TrackPlayer.play()} />
       <Button

@@ -1,6 +1,6 @@
 import {NativeModules} from 'react-native';
 
-const {TrackPlayerModule: TrackPlayer} = NativeModules;
+const {ReactNativeBridgeConnectorModule: TrackPlayer} = NativeModules;
 
 async function test(obj: {
   music: Array<{
@@ -18,6 +18,9 @@ async function test(obj: {
   }>;
 }) {
   return TrackPlayer.test(obj);
+}
+async function add() {
+  return TrackPlayer.add();
 }
 async function play() {
   return TrackPlayer.play();
@@ -39,6 +42,7 @@ async function getNowPlaying() {
 }
 
 export default {
+  add,
   test,
   pause,
   play,
