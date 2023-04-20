@@ -15,7 +15,6 @@
  */
 package com.trackplayer.media.library
 
-import android.content.res.AssetManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -23,9 +22,9 @@ import androidx.media.utils.MediaConstants
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.Util
+import androidx.media3.common.util.UnstableApi
 import com.google.common.collect.ImmutableList
-import org.json.JSONObject
+import com.trackplayer.media.utils.MediaItemBundleKey
 
 /**
  * A sample media catalog that represents media items as a tree.
@@ -38,26 +37,69 @@ import org.json.JSONObject
  */
 private const val TAG = "MediaItemTree"
 
-object MediaItemTree {
+@UnstableApi object MediaItemTree {
   private var treeNodes: MutableMap<String, MediaItemNode> = mutableMapOf()
   private var titleMap: MutableMap<String, MediaItemNode> = mutableMapOf()
   private var isInitialized = false
-  private const val ROOT_ID = "[rootID]"
-  private const val MASTER_PLAYLIST_ID = "[masterPlaylistID]"
-  private const val PLAYLIST_ID = "[playlistID]"
-  private const val PLAYLIST_PREFIX = "[playlist]"
-  private const val ITEM_PREFIX = "[item]"
+  const val ROOT_ID = "[rootID]"
+  private const val TAB = "[TAB]"
+  private const val NODE = "[NODE]"
+  private const val ITEM = "[ITEM]"
+  private var browsableStyle = MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
+  private var playableStyle = MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+
 
   private class MediaItemNode(val item: MediaItem) {
     private val children: MutableList<MediaItem> = ArrayList()
+    private val childrenNodes: MutableList<MediaItemNode> = ArrayList()
+    private var nextSiblingNode: MediaItemNode? = null;
+    private var priorSiblingNode: MediaItemNode? = null;
+    private var parentNode: MediaItemNode? = null;
 
     fun addChild(childID: String) {
-      this.children.add(treeNodes[childID]!!.item)
+      val childNode = treeNodes[childID]
+      if(childNode != null) {
+        this.children.add(childNode.item)
+        childrenNodes.add(childNode)
+        childNode.parentNode = this;
+        if (childrenNodes.size > 0) {
+         childNode.priorSiblingNode = childrenNodes.last()
+          childNode.nextSiblingNode = treeNodes[childID]!!
+        }
+      } else {
+        Log.e(TAG, "Attempted to add null child.")
+      }
     }
 
     fun getChildren(): List<MediaItem> {
       return ImmutableList.copyOf(children)
     }
+    fun getParentNode(): MediaItemNode? {
+      return this.parentNode
+    }
+
+    fun getSiblingNodes():ArrayList<MediaItemNode>{
+      val siblings: ArrayList<MediaItemNode> = ArrayList()
+      var current: MediaItemNode = this
+      while (current.priorSiblingNode != null){
+        current = current.priorSiblingNode!!;
+      }
+      while (current.nextSiblingNode != null){
+        siblings.add(current)
+        current = current.nextSiblingNode!!;
+      }
+      siblings.add(current)
+      return siblings
+    }
+
+    fun getSibling():MutableList<MediaItem>{
+      val siblingNodes = this.getSiblingNodes()
+      return siblingNodes.map{node ->
+        node.item
+      }.toMutableList()
+    }
+
+
   }
 
   private fun buildMediaItem(
@@ -77,10 +119,10 @@ object MediaItemTree {
 
     extras.putInt(
       MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
-      MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM)
+      browsableStyle)
     extras.putInt(
       MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
-      MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM)
+      playableStyle)
     val metadata =
       MediaMetadata.Builder()
         .setAlbumTitle(album)
@@ -123,63 +165,6 @@ object MediaItemTree {
     treeNodes[ROOT_ID]!!.getChildren().size
   }
 
-  private fun addMasterPlaylistToTree(masterPlaylistName: String){
-    val masterPlaylistID = MASTER_PLAYLIST_ID + masterPlaylistName
-    treeNodes[masterPlaylistID] =
-      MediaItemNode(
-        buildMediaItem(
-          title = masterPlaylistName,
-          mediaId = masterPlaylistID,
-          isPlayable = false,
-          isBrowsable = true,
-          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED
-        )
-      )
-    treeNodes[ROOT_ID]!!.addChild(masterPlaylistID)
-  }
-
-  private fun addMediaItemsToMasterPlaylist(masterPlaylistName:String, mediaItems: MutableList<MediaItem>):MutableList<String>  {
-    if(!treeNodes.containsKey(masterPlaylistName)) {
-      addMasterPlaylistToTree(masterPlaylistName)
-    }
-    val updatedIds: MutableList<String> = mutableListOf()
-    val masterPlaylistId =  MASTER_PLAYLIST_ID + masterPlaylistName
-    updatedIds.add(ROOT_ID)
-    updatedIds.add(masterPlaylistId)
-    mediaItems.forEach{item ->
-      val idInTree = ITEM_PREFIX + item.mediaId
-      val mediaItem = item.buildUpon().setMediaId(idInTree).build()
-      val albumFolderIdInTree = PLAYLIST_PREFIX + mediaItem.mediaMetadata.albumTitle
-      treeNodes[idInTree] =
-        MediaItemNode(
-          mediaItem
-        )
-      titleMap[mediaItem.mediaMetadata.title.toString().lowercase()] = treeNodes[idInTree]!!
-      //Create album node if it doesn't exist
-      if (!treeNodes.containsKey(albumFolderIdInTree)) {
-        treeNodes[albumFolderIdInTree] =
-          MediaItemNode(
-            buildMediaItem(
-              title = mediaItem.mediaMetadata.albumTitle.toString(),
-              mediaId = albumFolderIdInTree,
-              isPlayable = false,
-              isBrowsable = true,
-              mediaType = MediaMetadata.MEDIA_TYPE_ALBUM,
-              imageUri=mediaItem.mediaMetadata.artworkUri,
-            )
-          )
-        treeNodes[masterPlaylistId]!!.addChild(albumFolderIdInTree)
-      }
-      //add song to album
-      treeNodes[albumFolderIdInTree]!!.addChild(idInTree)
-      Log.d(TAG, treeNodes[albumFolderIdInTree]!!.item.mediaId)
-
-      updatedIds.add(albumFolderIdInTree)
-      updatedIds.add(idInTree)
-    }
-    return updatedIds
-  }
-
   fun getItem(id: String): MediaItem? {
     return treeNodes[id]?.item
   }
@@ -205,7 +190,108 @@ object MediaItemTree {
     return titleMap[title]?.item
   }
 
-  fun addMediaItems(masterPlaylistName: String, mediaItems: MutableList<MediaItem>):MutableList<String> {
-    return addMediaItemsToMasterPlaylist(masterPlaylistName, mediaItems)
+
+
+
+
+  fun setViewStyles(playableStyle: Int, browsableStyle: Int){
+    this.browsableStyle =  browsableStyle
+    this.playableStyle = playableStyle
+  }
+
+  private fun getNodesToUpdate(uuid: String): MutableList<String>{
+    var node = treeNodes[uuid]
+    val invertedListOfNodes: MutableList<String> = mutableListOf()
+    while(node?.getParentNode()!= null){
+      invertedListOfNodes.add(node.item.mediaId)
+      node = node.getParentNode()
+    }
+    return invertedListOfNodes.asReversed()
+  }
+
+
+
+  fun addTab(args: Bundle) {
+    val title: String = args.getString(MediaItemBundleKey.MEDIA_METADATA_TITLE.name)!!
+    val uuid: String = args.getString(MediaItemBundleKey.MEDIA_ID.name)!!
+    Log.d(TAG, "addTab: $title")
+    treeNodes[uuid] =
+      MediaItemNode(
+        buildMediaItem(
+          title = title,
+          mediaId = uuid,
+          isPlayable = false,
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED
+        )
+      )
+    treeNodes[ROOT_ID]!!.addChild(uuid)
+
+  }
+
+  fun addNode(args: Bundle): MutableList<String> {
+
+    val uuid: String = args.getString(MediaItemBundleKey.MEDIA_ID.name)!!
+    val parentId: String = args.getString(MediaItemBundleKey.PARENT_ID.name)!!
+    val title: String = args.getString(MediaItemBundleKey.MEDIA_METADATA_TITLE.name)!!
+    val imageUri: Uri = Uri.parse(args.getString(MediaItemBundleKey.MEDIA_METADATA_ARTWORK_URI.name)!!)
+    Log.d(TAG, "addNode: $title $parentId")
+    treeNodes[uuid] =
+      MediaItemNode(
+        buildMediaItem(
+          title = title,
+          mediaId = uuid,
+          isPlayable = false,
+          isBrowsable = true,
+          mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+          imageUri = imageUri
+        )
+      )
+    treeNodes[parentId]!!.addChild(uuid)
+    return getNodesToUpdate(uuid)
+  }
+
+  fun addMediaItem(args:Bundle) : MutableList<String> {
+    try {
+      val title = args.getString(MediaItemBundleKey.MEDIA_METADATA_TITLE.name)!!
+      val mediaType = args.getInt(MediaItemBundleKey.MEDIA_METADATA_MEDIA_TYPE.name)!!
+      val album = args.getString(MediaItemBundleKey.MEDIA_METADATA_ALBUM_TITLE.name)
+      val artist = args.getString(MediaItemBundleKey.MEDIA_METADATA_ARTIST.name)
+      val genre = args.getString(MediaItemBundleKey.MEDIA_METADATA_GENRE.name)
+      val sourceString = args.getString(MediaItemBundleKey.SOURCE_URI.name)
+      val sourceUri: Uri = Uri.parse(sourceString)
+      val imageString = args.getString(MediaItemBundleKey.MEDIA_METADATA_ARTWORK_URI.name)
+      val imageUri = if (imageString!=null) Uri.parse(imageString) else null
+      val uuid: String = args.getString(MediaItemBundleKey.MEDIA_ID.name)!!
+      val parentId: String = args.getString(MediaItemBundleKey.PARENT_ID.name)!!
+      Log.d(TAG, "addMediaItem: $title $parentId")
+      treeNodes[uuid] =
+        MediaItemNode(
+          buildMediaItem(
+            title = title,
+            mediaId = uuid,
+            isPlayable = true,
+            isBrowsable = false,
+            mediaType = MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+            imageUri = imageUri,
+            sourceUri = sourceUri,
+            album = album,
+            artist = artist,
+            genre = genre,
+          )
+        )
+      treeNodes[parentId]!!.addChild(uuid)
+      return getNodesToUpdate(uuid)
+    } catch (e: Exception){
+      Log.e(TAG, e.toString())
+      return mutableListOf()
+    }
+  }
+
+  fun resetRoot() {
+    treeNodes = mutableMapOf()
+    titleMap = mutableMapOf()
+    isInitialized = false
+    this.initialize()
   }
 }

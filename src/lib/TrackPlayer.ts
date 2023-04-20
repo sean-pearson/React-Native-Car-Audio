@@ -1,24 +1,20 @@
-import {NativeModules} from 'react-native';
+import { NativeModules } from "react-native";
+import { MediaItemNode } from "../models/MediaItemNode";
+import { catalog } from "./catalog";
 
-const {ReactNativeBridgeConnectorModule: TrackPlayer} = NativeModules;
-
-async function test(obj: {
-  music: Array<{
-    id: string;
-    title: string;
-    album: string;
-    artist: string;
-    genre: string;
-    source: string;
-    image: string;
-    trackNumber: number;
-    totalTrackCount: number;
-    duration: number;
-    site: string;
-  }>;
-}) {
-  return TrackPlayer.test(obj);
+const { ReactNativeBridgeConnectorModule: TrackPlayer } = NativeModules;
+async function setupPlayer(
+  browsableStyle: BrowserLayout,
+  playableStyle: BrowserLayout
+) {
+  TrackPlayer.setupPlayer(browsableStyle, playableStyle);
+  loadPlayer(new MediaItemNode(catalog));
 }
+
+async function loadPlayer(root: MediaItemNode) {
+  TrackPlayer.loadPlayer(root);
+}
+
 async function add() {
   return TrackPlayer.add();
 }
@@ -40,14 +36,3 @@ async function skipToPrevious() {
 async function getNowPlaying() {
   return TrackPlayer.getNowPlaying();
 }
-
-export default {
-  add,
-  test,
-  pause,
-  play,
-  togglePlay,
-  skipToNext,
-  skipToPrevious,
-  getNowPlaying,
-};

@@ -1,13 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {
-  Button,
-  NativeEventEmitter,
-  NativeModules,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-} from 'react-native';
-import TrackPlayer from './lib/TrackPlayer';
+import { useLayoutEffect, useState } from "react";
+import { Button, SafeAreaView, StyleSheet, Text } from "react-native";
+
+import React from "react";
+import { Player } from "./models/AAPlayer";
+import { BrowsableNode } from "./models/BrowsableNode";
+import { MediaItem } from "./models/MediaItem";
+import { TabNode } from "./models/TabNode";
 
 function App() {
   const [nowPlaying, setNowPlaying] = useState<{
@@ -16,22 +14,39 @@ function App() {
     duration?: number;
     title?: string;
   }>({});
-  useEffect(() => {
-    const myModuleEvt = new NativeEventEmitter(NativeModules.TrackPlayerModule);
-    myModuleEvt.addListener('NOW_PLAYING', data => setNowPlaying(data));
-    // if (!nowPlaying.album) {
-    //   setNowPlaying(await TrackPlayer.getNowPlaying());
-    // }
-  });
+  const TrackPlayer = Player;
+  const initPlayer = async () => {
+    const tab1 = new TabNode("Test 1");
+    const media1 = new MediaItem({
+      uri: "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/01_-_Intro_-_The_Way_Of_Waking_Up_feat_Alan_Watts.mp3",
+      mediaMetadata: { title: "Wake Up" },
+    });
+    TrackPlayer.addTab(tab1);
+    const tab2 = new TabNode("Test 2");
+    const node = new BrowsableNode(
+      "Album",
+      "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    );
+    node.addChild(media1);
+    tab1.addChild(node);
+    // tab2.addChild(node);
+    TrackPlayer.addTab(tab2);
+    TrackPlayer.addTab(new TabNode("Test 3"));
+    TrackPlayer.addTab(new TabNode("Test 4"));
+    TrackPlayer.addTab(new TabNode("Test 5"));
+    await TrackPlayer.loadPlayer();
+  };
+  useLayoutEffect(() => {
+    initPlayer();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={{color: 'white', textAlign: 'center'}}>
+      <Text style={{ color: "white", textAlign: "center" }}>
         {nowPlaying.title}
       </Text>
-      <Text style={{color: 'white', textAlign: 'center'}}>
+      <Text style={{ color: "white", textAlign: "center" }}>
         {nowPlaying.artist}
       </Text>
-      <Button title="Add" color="#777" onPress={() => TrackPlayer.add()} />
       <Button title="Pause" color="#777" onPress={() => TrackPlayer.pause()} />
       <Button title="Play" color="#777" onPress={() => TrackPlayer.play()} />
       <Button
@@ -44,11 +59,11 @@ function App() {
         color="#777"
         onPress={() => TrackPlayer.skipToPrevious()}
       />
-      <Button
+      {/* <Button
         title="toggle play"
         color="#777"
         onPress={() => TrackPlayer.togglePlay()}
-      />
+      /> */}
     </SafeAreaView>
   );
 }
@@ -56,9 +71,9 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
-    backgroundColor: '#112',
+    backgroundColor: "#112",
   },
 });
 

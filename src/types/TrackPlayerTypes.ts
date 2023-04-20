@@ -1,0 +1,1 @@
+type BrowserLayout = "GRID" | "LIST";
