@@ -200,7 +200,11 @@ private const val ALBUM_ID = "[albumID]"
                         updatedMediaItems.add(child)
                     }
                     } else {
-                        updatedMediaItems.add(MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem)
+                        updatedMediaItems.add(MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem);
+//                        MediaItemTree.getItemsSiblings(mediaItem.mediaId)?.forEach { item ->
+//                            updatedMediaItems.add(item)
+//                        }
+
                     }
                 }
             }

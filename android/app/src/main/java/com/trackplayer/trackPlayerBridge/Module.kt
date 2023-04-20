@@ -43,7 +43,6 @@ private const val TAG = "MediaModule"
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
     }
 
-
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
         Log.d(TAG, "onCatalystInstanceDestroy")
@@ -65,7 +64,7 @@ private const val TAG = "MediaModule"
     }
 
     @ReactMethod
-    fun setupPlayer(browsableStyle: String, playableStyle: String, callback: Promise){
+    fun updateViewStyles(browsableStyle: String, playableStyle: String, callback: Promise){
         try {
             val setupPlayerBundle: Bundle = Bundle()
             setupPlayerBundle.putInt(
@@ -83,15 +82,16 @@ private const val TAG = "MediaModule"
                     Bundle.EMPTY
                 ), setupPlayerBundle
             )
-            return callback.resolve(resp)
+            awaitCallback(resp!!, callback)
         } catch (e: Exception ){
             return callback.reject(e)
         }
     }
+
+    //TODO: implement function
     private fun mimeTypeToMediaType(type:String):Int{
         return MediaMetadata.MEDIA_TYPE_MUSIC
     }
-
 
     private fun awaitCallback(resp: ListenableFuture<SessionResult>, callback: Promise){
         if(resp==null){
@@ -116,15 +116,12 @@ private const val TAG = "MediaModule"
             decorator
         )
     }
+
     @ReactMethod
     fun resetPlayer(callback: Promise){
         Log.d(TAG, "resetPlayer")
         val resp = controller?.sendCustomCommand(SessionCommand(CustomCommands.RESET_PLAYER.name, Bundle.EMPTY), Bundle.EMPTY)
-        Log.d(TAG, "returned")
-
         awaitCallback(resp!!, callback)
-
-
     }
 
     @ReactMethod
@@ -160,45 +157,13 @@ private const val TAG = "MediaModule"
     }
 
     @ReactMethod
-    fun add(data: ReadableMap,callback: Promise) {
-
-    }
-
-    @ReactMethod
-    fun remove(data: ReadableArray?, callback: Promise) {
-
-    }
-
-    @ReactMethod
-    fun updateMetadataForTrack(index: Int, map: ReadableMap?, callback: Promise){
-
-    }
-
-    @ReactMethod
-    fun updateNowPlayingMetadata(map: ReadableMap?, callback: Promise) {
-
-    }
-
-    @ReactMethod
-    fun clearNowPlayingMetadata(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun removeUpcomingTracks(callback: Promise)  {
-    }
-
-    @ReactMethod
-    fun skip(index: Int, initialTime: Float, callback: Promise) {
-    }
-
-    @ReactMethod
     fun skipToNext(callback: Promise){
-
+        val resp = controller?.seekToNextMediaItem()
     }
 
     @ReactMethod
     fun skipToPrevious(callback: Promise){
-
+        val resp = controller?.seekToPreviousMediaItem()
     }
 
     @ReactMethod
@@ -207,76 +172,16 @@ private const val TAG = "MediaModule"
 
     @ReactMethod
     fun play(callback: Promise) {
-
-        controller?.play()
+        val resp = controller?.play()
     }
-
-
 
     @ReactMethod
     fun pause(callback: Promise)  {
-        controller?.pause()
-    }
-
-
-    @ReactMethod
-    fun seekTo(seconds: Float, callback: Promise) {
-
+        val resp = controller?.pause()
     }
 
     @ReactMethod
-    fun setVolume(volume: Float, callback: Promise) {
+    fun seekTo(positionMs: Long, callback: Promise) {
+        val resp = controller?.seekTo(positionMs)
     }
-
-    @ReactMethod
-    fun getVolume(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun setRate(rate: Float, callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getRate(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun setRepeatMode(mode: Int, callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getRepeatMode(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getTrack(index: Int, callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getQueue(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getCurrentTrack(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getDuration(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getBufferedPosition(callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getPosition( callback: Promise) {
-    }
-
-    @ReactMethod
-    fun getState( callback: Promise) {
-    }
-
-
-
-
 }

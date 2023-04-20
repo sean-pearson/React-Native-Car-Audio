@@ -16,19 +16,53 @@ function App() {
   }>({});
   const TrackPlayer = Player;
   const initPlayer = async () => {
-    const tab1 = new TabNode("Test 1");
+    const tab1 = new TabNode("Live Radio");
+    tab1.addChild(
+      new MediaItem({
+        uri: "https://kcrw1.streamguys1.com/kcrw_64k_aac_on_air/playlist.m3u8",
+        mediaMetadata: {
+          title: "On Air",
+        },
+      })
+    );
+    tab1.addChild(
+      new MediaItem({
+        uri: "https://kcrw1.streamguys1.com/kcrw_64k_aac_e24/playlist.m3u8",
+        mediaMetadata: {
+          title: "Eclectic 24",
+        },
+      })
+    );
+    // await TrackPlayer.updateViewStyles("GRID", "GRID");
     const media1 = new MediaItem({
       uri: "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/01_-_Intro_-_The_Way_Of_Waking_Up_feat_Alan_Watts.mp3",
-      mediaMetadata: { title: "Wake Up" },
+      mediaMetadata: {
+        title: "Intro - The Way Of Waking Up (feat. Alan Watts)",
+      },
     });
+    const media2 = new MediaItem({
+      uri: "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/06_-_No_Pain_No_Gain.mp3",
+      mediaMetadata: {
+        title: "No Pain, No Gain",
+        imageUri:
+          "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg",
+      },
+    });
+
     TrackPlayer.addTab(tab1);
+
     const tab2 = new TabNode("Test 2");
+
     const node = new BrowsableNode(
-      "Album",
+      "Wake Up",
       "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
     );
+
     node.addChild(media1);
-    tab1.addChild(node);
+    node.addChild(media2);
+
+    tab2.addChild(node);
+
     // tab2.addChild(node);
     TrackPlayer.addTab(tab2);
     TrackPlayer.addTab(new TabNode("Test 3"));

@@ -29,6 +29,16 @@ class AAPlayer {
     this.browsableStyle = browsableStyle ?? this.browsableStyle;
     this.playableStyle = playableStyle ?? this.playableStyle;
     this.TrackPlayer.setViewStyles(browsableStyle, playableStyle);
+    this.loadPlayer();
+  }
+
+  async loadPlayer() {
+    console.log("loadPlayer");
+    await this.TrackPlayer.resetPlayer();
+    console.log("resetPlayer Done");
+    this.tabs.forEach((tab) => {
+      tab.loadData(this.TrackPlayer);
+    });
   }
 
   addTab(tab: TabNode) {
@@ -40,24 +50,19 @@ class AAPlayer {
   }
 
   skipToPrevious(): void {
-    throw new Error("Method not implemented.");
+    this.TrackPlayer.skipToPrevious();
   }
+
   skipToNext(): void {
-    throw new Error("Method not implemented.");
+    this.TrackPlayer.skipToNext();
   }
+
   play(): void {
-    throw new Error("Method not implemented.");
+    this.TrackPlayer.play();
   }
+
   pause(): void {
-    throw new Error("Method not implemented.");
-  }
-  async loadPlayer() {
-    console.log("loadPlayer");
-    await this.TrackPlayer.resetPlayer();
-    console.log("resetPlayer Done");
-    this.tabs.forEach((tab) => {
-      tab.loadData(this.TrackPlayer);
-    });
+    this.TrackPlayer.pause();
   }
 
   requestUUID(): String {

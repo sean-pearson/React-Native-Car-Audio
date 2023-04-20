@@ -169,6 +169,10 @@ private const val TAG = "MediaItemTree"
     return treeNodes[id]?.item
   }
 
+  fun getItemsSiblings(id: String): MutableList<MediaItem>? {
+    return treeNodes[id]?.getSibling()
+  }
+
   fun getRootItem(): MediaItem {
     return treeNodes[ROOT_ID]!!.item
   }
