@@ -16,13 +16,11 @@ import com.trackplayer.media.utils.*
 
 
 private const val TAG = "MediaService"
-private const val ROOT_ID = "[rootID]"
-private const val ALBUM_ID = "[albumID]"
 @UnstableApi class MediaService : MediaLibraryService() {
     private val librarySessionCallback = CustomMediaLibrarySessionCallback()
     private lateinit var player: ExoPlayer
     private lateinit var mediaLibrarySession: MediaLibrarySession
-    private val mediaBrowers: MutableList<ControllerInfo> = mutableListOf()
+    private val mediaBrowsers: MutableList<ControllerInfo> = mutableListOf()
     private val mediaControllers: MutableList<ControllerInfo> = mutableListOf()
     override fun onGetSession(controllerInfo: ControllerInfo): MediaLibrarySession {
         return mediaLibrarySession
@@ -58,7 +56,7 @@ private const val ALBUM_ID = "[albumID]"
         val children = MediaItemTree.getChildren(mediaId)
             ?: return
 
-        mediaBrowers.forEach{browser ->
+        mediaBrowsers.forEach{browser ->
             mediaLibrarySession.notifyChildrenChanged(browser, mediaId, children.size,null)
         }
         mediaControllers.forEach{controller ->
@@ -73,7 +71,7 @@ private const val ALBUM_ID = "[albumID]"
 
     }
 
-    @UnstableApi private inner class CustomMediaLibrarySessionCallback : MediaLibrarySession.Callback {
+  private inner class CustomMediaLibrarySessionCallback : MediaLibrarySession.Callback {
         override fun onCustomCommand(
             session: MediaSession,
             controller: ControllerInfo,
@@ -85,6 +83,7 @@ private const val ALBUM_ID = "[albumID]"
                 CustomCommands.SET_VIEW_STYLES.name -> {
                     setViewStyles(args)
                 }
+
                 CustomCommands.ADD_MEDIA_ITEM.name -> {
                     updateChildrenOf(MediaItemTree.addMediaItem(args))
 
@@ -106,6 +105,7 @@ private const val ALBUM_ID = "[albumID]"
 
             return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
         }
+
         override fun onConnect(
             session: MediaSession,
             controller: ControllerInfo
@@ -126,9 +126,6 @@ private const val ALBUM_ID = "[albumID]"
                 connectionResult.availablePlayerCommands
             )
         }
-
-
-
 
         override fun onGetLibraryRoot(
             session: MediaLibrarySession,
@@ -157,7 +154,7 @@ private const val ALBUM_ID = "[albumID]"
             parentId: String,
             params: LibraryParams?
         ): ListenableFuture<LibraryResult<Void>> {
-            mediaBrowers.add(browser)
+            mediaBrowsers.add(browser)
             val children =
                 MediaItemTree.getChildren(parentId)
                     ?: return Futures.immediateFuture(
@@ -184,33 +181,50 @@ private const val ALBUM_ID = "[albumID]"
             return Futures.immediateFuture(LibraryResult.ofItemList(children, params))
         }
 
+      override fun onSetMediaItems(
+          mediaSession: MediaSession,
+          controller: ControllerInfo,
+          mediaItems: MutableList<MediaItem>,
+          startIndex: Int,
+          startPositionMs: Long
+      ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
+          var index = startIndex;
+          val updatedMediaItems: MutableList<MediaItem> = mutableListOf()
+          mediaItems.forEach { mediaItem ->
+              if (mediaItem.requestMetadata.searchQuery != null) {
+                  getMediaItemFromSearchQuery(mediaItem.requestMetadata.searchQuery!!)
+              } else {
+                  if(MediaItemTree.getItem(mediaItem.mediaId)?.localConfiguration==null){
+                      val children = MediaItemTree.getChildren(mediaItem.mediaId)
+                      children?.forEach { child ->
+                          updatedMediaItems.add(child)
+                      }
+                  } else {
+                      MediaItemTree.getItemsSiblings(mediaItem.mediaId)?.forEachIndexed{ idx, sibling ->
+                          if(mediaItem.mediaId == sibling.mediaId){
+                              index = idx
+                          }
+                          updatedMediaItems.add(sibling)
+                      }
+                  }
+              }
+          }
+          return super.onSetMediaItems(
+              mediaSession,
+              controller,
+              updatedMediaItems,
+              index,
+              startPositionMs
+          )
+      }
+
         override fun onAddMediaItems(
             mediaSession: MediaSession,
             controller: ControllerInfo,
             mediaItems: List<MediaItem>
         ): ListenableFuture<List<MediaItem>> {
-            val updatedMediaItems: MutableList<MediaItem> = mutableListOf()
-            mediaItems.forEach { mediaItem ->
-                if (mediaItem.requestMetadata.searchQuery != null) {
-                    getMediaItemFromSearchQuery(mediaItem.requestMetadata.searchQuery!!)
-                } else {
-                    if(MediaItemTree.getItem(mediaItem.mediaId)?.localConfiguration==null){
-                        val children = MediaItemTree.getChildren(mediaItem.mediaId)
-                        children?.forEach { child ->
-                        updatedMediaItems.add(child)
-                    }
-                    } else {
-                        updatedMediaItems.add(MediaItemTree.getItem(mediaItem.mediaId) ?: mediaItem);
-//                        MediaItemTree.getItemsSiblings(mediaItem.mediaId)?.forEach { item ->
-//                            updatedMediaItems.add(item)
-//                        }
-
-                    }
-                }
-            }
-            return Futures.immediateFuture(updatedMediaItems)
+            return Futures.immediateFuture(mediaItems)
         }
-
 
         private fun getMediaItemFromSearchQuery(query: String): MediaItem {
             // Only accept query with pattern "play [Title]" or "[Title]"
@@ -222,10 +236,7 @@ private const val ALBUM_ID = "[albumID]"
                 } else {
                     query
                 }
-
             return MediaItemTree.getItemFromTitle(mediaTitle) ?: MediaItemTree.getRandomItem()
         }
     }
 }
-const val REWIND_30 = "REWIND_30"
-const val FAST_FWD_30 = "FAST_FWD_30"

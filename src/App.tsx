@@ -33,7 +33,15 @@ function App() {
         },
       })
     );
-    // await TrackPlayer.updateViewStyles("GRID", "GRID");
+
+    TrackPlayer.addTab(tab1);
+
+    const tab2 = new TabNode("Album");
+
+    const node = new BrowsableNode(
+      "Wake Up",
+      "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
+    );
     const media1 = new MediaItem({
       uri: "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/01_-_Intro_-_The_Way_Of_Waking_Up_feat_Alan_Watts.mp3",
       mediaMetadata: {
@@ -48,26 +56,10 @@ function App() {
           "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg",
       },
     });
-
-    TrackPlayer.addTab(tab1);
-
-    const tab2 = new TabNode("Test 2");
-
-    const node = new BrowsableNode(
-      "Wake Up",
-      "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
-    );
-
     node.addChild(media1);
     node.addChild(media2);
-
     tab2.addChild(node);
-
-    // tab2.addChild(node);
     TrackPlayer.addTab(tab2);
-    TrackPlayer.addTab(new TabNode("Test 3"));
-    TrackPlayer.addTab(new TabNode("Test 4"));
-    TrackPlayer.addTab(new TabNode("Test 5"));
     await TrackPlayer.loadPlayer();
   };
   useLayoutEffect(() => {

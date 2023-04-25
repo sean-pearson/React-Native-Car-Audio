@@ -48,6 +48,12 @@ private const val TAG = "MediaItemTree"
   private var browsableStyle = MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
   private var playableStyle = MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
 
+  private var _siblingToPlayFrom: Int = -1
+
+  var siblingToPlayFrom: Int
+    get() = _siblingToPlayFrom
+    set(value) { _siblingToPlayFrom = value }
+
 
   private class MediaItemNode(val item: MediaItem) {
     private val children: MutableList<MediaItem> = ArrayList()
@@ -60,12 +66,14 @@ private const val TAG = "MediaItemTree"
       val childNode = treeNodes[childID]
       if(childNode != null) {
         this.children.add(childNode.item)
-        childrenNodes.add(childNode)
+
         childNode.parentNode = this;
+        val title = childNode.item.mediaMetadata.title
         if (childrenNodes.size > 0) {
-         childNode.priorSiblingNode = childrenNodes.last()
-          childNode.nextSiblingNode = treeNodes[childID]!!
+         childNode.priorSiblingNode = childrenNodes.last();
+          childNode.priorSiblingNode?.nextSiblingNode = treeNodes[childID]!!
         }
+        childrenNodes.add(childNode)
       } else {
         Log.e(TAG, "Attempted to add null child.")
       }
@@ -123,6 +131,11 @@ private const val TAG = "MediaItemTree"
     extras.putInt(
       MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
       playableStyle)
+//    extras.putLong(
+//    MediaConstants.METADATA_KEY_IS_EXPLICIT,
+//    MediaConstants.METADATA_VALUE_ATTRIBUTE_PRESENT)
+//extras.putDouble(
+//    MediaConstants.DESCRIPTION_EXTRAS_KEY_COMPLETION_PERCENTAGE, 0.0)
     val metadata =
       MediaMetadata.Builder()
         .setAlbumTitle(album)
@@ -161,10 +174,6 @@ private const val TAG = "MediaItemTree"
       )
   }
 
-  private fun checkIfNewMasterPlaylistCanBeAdded(){
-    treeNodes[ROOT_ID]!!.getChildren().size
-  }
-
   fun getItem(id: String): MediaItem? {
     return treeNodes[id]?.item
   }
@@ -194,10 +203,6 @@ private const val TAG = "MediaItemTree"
     return titleMap[title]?.item
   }
 
-
-
-
-
   fun setViewStyles(playableStyle: Int, browsableStyle: Int){
     this.browsableStyle =  browsableStyle
     this.playableStyle = playableStyle
@@ -212,8 +217,6 @@ private const val TAG = "MediaItemTree"
     }
     return invertedListOfNodes.asReversed()
   }
-
-
 
   fun addTab(args: Bundle) {
     val title: String = args.getString(MediaItemBundleKey.MEDIA_METADATA_TITLE.name)!!
@@ -234,7 +237,6 @@ private const val TAG = "MediaItemTree"
   }
 
   fun addNode(args: Bundle): MutableList<String> {
-
     val uuid: String = args.getString(MediaItemBundleKey.MEDIA_ID.name)!!
     val parentId: String = args.getString(MediaItemBundleKey.PARENT_ID.name)!!
     val title: String = args.getString(MediaItemBundleKey.MEDIA_METADATA_TITLE.name)!!

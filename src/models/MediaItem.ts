@@ -16,8 +16,10 @@ export interface MediaItemType {
 }
 
 export class MediaItem {
+  private loadRequired: boolean;
   private _: MediaItemType;
   constructor(data: MediaItemType) {
+    this.loadRequired = true;
     this._ = data;
     if (!this._.uuid) {
       this._.uuid = Player.requestUUID();
@@ -69,7 +71,9 @@ export class MediaItem {
   }
 
   async loadData(ParentId: String, TrackPlayer: any) {
-    await TrackPlayer.loadMediaItem(this.uuid, ParentId, this._);
-    console.log("loadMediaItem" + this.title);
+    if (this.loadRequired) {
+      this.loadRequired = false;
+      await TrackPlayer.loadMediaItem(this.uuid, ParentId, this._);
+    }
   }
 }

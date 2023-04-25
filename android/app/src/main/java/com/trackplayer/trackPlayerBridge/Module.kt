@@ -2,30 +2,29 @@ package com.trackplayer.trackPlayerBridge
 
 
 import android.content.ComponentName
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.media.utils.MediaConstants
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.*
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
+import androidx.media3.session.SessionToken
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.trackplayer.media.library.MediaItemTree
 import com.trackplayer.media.service.MediaService
-import com.trackplayer.media.utils.*
+import com.trackplayer.media.utils.CustomCommands
+import com.trackplayer.media.utils.MediaItemBundleKey
+import com.trackplayer.media.utils.SetViewStyleCustomCommand
+import com.trackplayer.media.utils.buildMediaItemBundle
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 private const val TAG = "MediaModule"
@@ -36,11 +35,37 @@ private const val TAG = "MediaModule"
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private val controller: MediaController?
         get() = if (controllerFuture.isDone) controllerFuture.get() else null
-
     override fun initialize() {
         super.initialize()
         val sessionToken = SessionToken(context, ComponentName(context, MediaService::class.java))
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())
+    }
+
+    private fun setController() {
+        val controller = this.controller ?: return
+        controller.repeatMode = Player.REPEAT_MODE_ALL
+        controller.addListener(
+            object : Player.Listener {
+                override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                    super.onMediaMetadataChanged(mediaMetadata)
+
+                    Log.d(TAG, "onMediaMetadataChanged ${mediaMetadata.title}")
+                }
+                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                    Log.d(TAG, "onPlayerStateChanged")
+                    if (playbackState == Player.STATE_READY && playWhenReady) {
+                        // Player is ready to play and is currently playing.
+                        // Do your playback logic here.
+
+                    }
+                }
+
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    super.onMediaItemTransition(mediaItem, reason)
+                }
+            }
+        )
     }
 
     override fun onCatalystInstanceDestroy() {

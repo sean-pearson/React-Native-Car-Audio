@@ -7,10 +7,12 @@ export class BrowsableNode {
   private imageUri: String;
   private children: Array<BrowsableNode | MediaItem>;
   private type: BrowsableNode | MediaItem | null = null;
+  private loadRequired: boolean;
 
   constructor(title: String, imageUri: String, uuid?: String) {
     this.title = title;
     this.imageUri = imageUri;
+    this.loadRequired = true;
     this.children = [];
     if (uuid) {
       this.browsableNodeId = uuid;
@@ -37,10 +39,16 @@ export class BrowsableNode {
   }
 
   async loadData(ParentId: String, TrackPlayer: any) {
-    await TrackPlayer.loadNode(this.uuid, ParentId, this.title, this.imageUri);
-    console.log("loadNode" + this.title + this.children.length);
+    if (this.loadRequired) {
+      this.loadRequired = false;
+      await TrackPlayer.loadNode(
+        this.uuid,
+        ParentId,
+        this.title,
+        this.imageUri
+      );
+    }
     this.children.forEach((child: BrowsableNode | MediaItem) => {
-      console.log("node child: " + child.uuid);
       child.loadData(this.uuid, TrackPlayer);
     });
   }
