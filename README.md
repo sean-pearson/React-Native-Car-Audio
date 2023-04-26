@@ -9,19 +9,10 @@ React Native Audio CarPlay is a library that enables audio integration with Andr
 - Metadata: Display audio metadata such as track name, artist, and album art in the in-car entertainment system.
 - Seamless integration: Integrate your audio app with CarPlay and Android Auto without needing to write native code.
 
-Then, you can import the library in your React Native app and start integrating it with your audio components.
-
-```javascript
-import AudioPlayer from 'react-native-audio-carplay';
-
-// Use the AudioPlayer component in your app to play audio files and control playback
-<AudioPlayer source={require('./path/to/audio/file.mp3')} />
-```
-
-Future Plans
-Adding to npm: We plan on publishing this library to npm so that it can be easily installed and integrated into your React Native projects.
-CarPlay support: We are currently working on adding support for CarPlay so that your audio-focused React Native apps can seamlessly integrate with in-car entertainment systems. Stay tuned for updates!
-We plan on integrating our audio library with react-native-track-player, a popular audio player library for React Native. This will allow you to use our library to control the audio playback and display metadata in react-native-track-player. We are currently working on this feature and will update this README.md file with instructions once it's available.
+## Future Plans
+- Adding to npm: We plan on publishing this library to npm so that it can be easily installed and integrated into your React Native projects.
+- CarPlay support: We are currently working on adding support for CarPlay so that your audio-focused React Native apps can seamlessly integrate with in-car entertainment systems. Stay tuned for updates!
+- We plan on integrating our audio library with react-native-track-player, a popular audio player library for React Native. This will allow you to use our library to control the audio playback and display metadata in react-native-track-player. We are currently working on this feature and will update this README.md file with instructions once it's available.
 
 For more detailed instructions and examples, check out the [documentation](https://github.com/yourusername/react-native-audio-carplay/docs).
 
