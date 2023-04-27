@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">Track Player</string>
+    <string name="app_name">react-native-car-audio</string>
     <string name="current_playlist_name">Current playlist</string>
     <string name="open_player_content_description">Click to view your play list</string>
     <string name="added_media_item_format">Added %1$s to playlist</string>
