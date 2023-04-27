@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "TrackPlayer.app"
-               BlueprintName = "TrackPlayer"
-               ReferencedContainer = "container:TrackPlayer.xcodeproj">
+               BuildableName = "reactnativecaraudio.app"
+               BlueprintName = "react-native-car-audio"
+               ReferencedContainer = "container:reactnativecaraudio.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
                BuildableName = "reactnativecaraudioTests.xctest"
                BlueprintName = "reactnativecaraudioTests"
-               ReferencedContainer = "container:TrackPlayer.xcodeproj">
+               ReferencedContainer = "container:reactnativecaraudio.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "TrackPlayer.app"
-            BlueprintName = "TrackPlayer"
-            ReferencedContainer = "container:TrackPlayer.xcodeproj">
+            BuildableName = "reactnativecaraudio.app"
+            BlueprintName = "react-native-car-audio"
+            ReferencedContainer = "container:reactnativecaraudio.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "TrackPlayer.app"
-            BlueprintName = "TrackPlayer"
-            ReferencedContainer = "container:TrackPlayer.xcodeproj">
+            BuildableName = "reactnativecaraudio.app"
+            BlueprintName = "react-native-car-audio"
+            ReferencedContainer = "container:reactnativecaraudio.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
