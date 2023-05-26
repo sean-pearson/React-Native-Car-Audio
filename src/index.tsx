@@ -1,5 +1,4 @@
 import { NativeModules, Platform } from 'react-native';
-
 const LINKING_ERROR =
   `The package 'react-native-car-audio' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -16,7 +15,10 @@ const CarAudio = NativeModules.CarAudio
         },
       }
     );
-
+export * from './BrowsableNode';
+export * from './CarPlayer';
+export * from './MediaItem';
+export * from './TabNode';
 export function multiply(a: number, b: number): Promise<number> {
   return CarAudio.multiply(a, b);
 }
